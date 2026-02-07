@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Survey</title>
+
+  <style>
+    :root{
+      --bg1:#0b1224;
+      --bg2:#020617;
+      --card:#020617cc;
+      --stroke:#334155;
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --accent:#fb7185;
+      --accent2:#f43f5e;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(900px 520px at 15% 25%, rgba(251,113,133,.18), transparent 60%),
+        radial-gradient(900px 520px at 85% 30%, rgba(244,63,94,.12), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      padding: 22px;
+    }
+
+    .card{
+      width:min(560px, 92vw);
+      background: var(--card);
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      padding:28px 22px 18px;
+      text-align:center;
+      box-shadow: 0 30px 90px rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
+    }
+
+    h1{
+      font-size: clamp(18px, 2.6vw, 24px);
+      margin: 0 0 18px;
+      line-height: 1.25;
+    }
+
+    .sub{
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    .options{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 520px){
+      .options{ grid-template-columns: 1fr; }
+    }
+
+    button{
+      width: 100%;
+      padding: 14px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      user-select:none;
+      position: relative;
+      overflow:hidden;
+    }
+
+    button:hover{
+      background: rgba(255,255,255,.10);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.22);
+    }
+    button:active{
+      transform: translateY(0px) scale(.99);
+    }
+
+    .noBtn{
+      border-color: rgba(251,113,133,.32);
+      box-shadow: 0 14px 30px rgba(244,63,94,.14);
+    }
+
+    .final{
+      display:none;
+      animation: pop .65s ease forwards;
+      margin-top: 6px;
+    }
+    @keyframes pop{
+      from{ opacity:0; transform: scale(.92); }
+      to{ opacity:1; transform: scale(1); }
+    }
+
+    .rose{
+      font-size: 66px;
+      margin: 10px 0 6px;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,.35));
+    }
+
+    .final h2{
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: .2px;
+    }
+
+    .final p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .toast{
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(2,6,23,.88);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 13px;
+      display:none;
+      z-index: 10;
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      pointer-events:none;
+      max-width: 92vw;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Put vine-boom.mp3 in the SAME folder as this index.html -->
+  <audio id="boom" src="vine-boom.mp3" preload="auto"></audio>
+
+  <div class="card">
+    <h1 id="question">Loading…</h1>
+    <p class="sub" id="sub">Tap once anywhere to enable sound.</p>
+
+    <div class="options" id="options"></div>
+
+    <div class="final" id="final">
+      <div class="rose">🌹</div>
+      <h2>Happy Rose Day</h2>
+      <p>You know who’s your <strong>DADDY</strong></p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // NOTE: I won’t bake in insults or real-person claims for you.
+  // Replace these 3 strings with any playful prompts you want (ideally not targeting real people).
+  const questions = [
+    {
+      q: "Samay is better than Zakir?",
+      yes: ["Yes obviously", "100% yes", "Without doubt", "Facts only"],
+    },
+    {
+      q: "Rahul wishes Messi was half as good as Ronaldo?",
+      yes: ["Yes 🐐", "No debate", "Absolutely", "Right AF"],
+    },
+    {
+      q: "Tom Holland is a better Spiderman than Tobey Maguire?",
+      yes: ["Confirmed", "Obviously", "No Doubt", "Universe agrees"],
+    }
+  ];
+
+  let step = 0;
+
+  const questionEl = document.getElementById("question");
+  const subEl = document.getElementById("sub");
+  const optionsEl = document.getElementById("options");
+  const finalEl = document.getElementById("final");
+  const toastEl = document.getElementById("toast");
+  const boom = document.getElementById("boom");
+
+  let soundReady = false;
+  let lastBoomAt = 0;
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toastEl.style.display = "none", 900);
+  }
+
+  // Unlock audio on first user gesture (required by browsers)
+  function unlockSound(){
+    if (soundReady) return;
+    soundReady = true;
+
+    // Attempt a silent-ish play/pause to "unlock" audio playback
+    boom.volume = 0.9;
+    boom.play().then(() => {
+      boom.pause();
+      boom.currentTime = 0;
+      subEl.textContent = "Sound enabled ✅";
+    }).catch(() => {
+      subEl.textContent = "Sound blocked (still works silently).";
+    });
+  }
+  document.addEventListener("pointerdown", unlockSound, { once:true });
+
+  function playBoom(){
+    if (!soundReady) return;
+    const now = Date.now();
+    if (now - lastBoomAt < 140) return; // throttle
+    lastBoomAt = now;
+
+    try{
+      boom.currentTime = 0;
+      boom.play().catch(() => {});
+    } catch(e){}
+  }
+
+  // Moves the "No" button away via translate (stays in layout so buttons always show)
+  function makeRunaway(btn){
+    let tx = 0, ty = 0;
+
+    const move = () => {
+      // bigger jumps as the quiz progresses 😈
+      const jumpX = (Math.random() * 260 - 130) * (1 + step * 0.08);
+      const jumpY = (Math.random() * 180 - 90)  * (1 + step * 0.08);
+
+      tx = jumpX;
+      ty = jumpY;
+
+      btn.style.transform = `translate(${tx}px, ${ty}px)`;
+      playBoom();
+    };
+
+    // desktop
+    btn.addEventListener("pointerenter", move);
+
+    // mobile: try to dodge on touch before it can be tapped
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      move();
+      toast("Nice try 😄");
+    }, { passive:false });
+
+    // if they somehow click it
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      move();
+      toast("No is not an option 😌");
+    });
+  }
+
+  function render(){
+    if(step >= questions.length){
+      questionEl.style.display = "none";
+      subEl.style.display = "none";
+      optionsEl.style.display = "none";
+      finalEl.style.display = "block";
+      return;
+    }
+
+    const data = questions[step];
+    questionEl.textContent = data.q;
+    optionsEl.innerHTML = "";
+
+    // 4 YES buttons
+    data.yes.forEach(txt => {
+      const b = document.createElement("button");
+      b.textContent = txt;
+      b.addEventListener("click", () => {
+        step++;
+        toast("Locked ✅");
+        render();
+      });
+      optionsEl.appendChild(b);
+    });
+
+    // 5th button: NO (runaway + vine boom)
+    const no = document.createElement("button");
+    no.textContent = "No";
+    no.className = "noBtn";
+    makeRunaway(no);
+    optionsEl.appendChild(no);
+  }
+
+  render();
+</script>
+</body>
+</html>
