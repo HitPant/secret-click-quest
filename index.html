@@ -3,307 +3,550 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quick Survey</title>
-
+  <title>...</title>
   <style>
     :root{
-      --bg1:#0b1224;
-      --bg2:#020617;
-      --card:#020617cc;
-      --stroke:#334155;
+      --bg1:#070a12;
+      --bg2:#0b1224;
+      --card:#0b1224cc;
+      --stroke: rgba(255,255,255,.12);
       --text:#f8fafc;
       --muted:#cbd5e1;
       --accent:#fb7185;
       --accent2:#f43f5e;
+      --good:#22c55e;
+      --shadow: 0 28px 90px rgba(0,0,0,.65);
+      --radius: 18px;
+      --speed: 220ms;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
 
-    *{ box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background:
-        radial-gradient(900px 520px at 15% 25%, rgba(251,113,133,.18), transparent 60%),
-        radial-gradient(900px 520px at 85% 30%, rgba(244,63,94,.12), transparent 60%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
+      font-family: var(--font);
       color: var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
+      background:
+        radial-gradient(900px 540px at 15% 25%, rgba(251,113,133,.10), transparent 60%),
+        radial-gradient(900px 540px at 85% 30%, rgba(244,63,94,.08), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
       padding: 22px;
+      overflow:hidden;
     }
 
     .card{
-      width:min(560px, 92vw);
+      width: min(640px, 96vw);
       background: var(--card);
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      padding:28px 22px 18px;
-      text-align:center;
-      box-shadow: 0 30px 90px rgba(0,0,0,.65);
-      backdrop-filter: blur(10px);
-    }
-
-    h1{
-      font-size: clamp(18px, 2.6vw, 24px);
-      margin: 0 0 18px;
-      line-height: 1.25;
-    }
-
-    .sub{
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 13px;
-      opacity: .9;
-    }
-
-    .options{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 520px){
-      .options{ grid-template-columns: 1fr; }
-    }
-
-    button{
-      width: 100%;
-      padding: 14px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      font-weight: 750;
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-      user-select:none;
-      position: relative;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
       overflow:hidden;
     }
 
-    button:hover{
-      background: rgba(255,255,255,.10);
-      transform: translateY(-2px);
-      border-color: rgba(255,255,255,.22);
+    .top{
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--stroke);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
     }
-    button:active{
+
+    .meta{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+
+    .headline{
+      margin:0;
+      font-size: clamp(18px, 2.5vw, 22px);
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+
+    .sub{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: .92;
+      line-height:1.35;
+    }
+
+    .stats{
+      text-align:right;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 160px;
+    }
+
+    .pill{
+      display:inline-flex;
+      justify-content:flex-end;
+      gap: 8px;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      white-space:nowrap;
+    }
+
+    .body{
+      padding: 16px 18px 18px;
+    }
+
+    /* 4x4 grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .tile{
+      height: 72px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      transition: transform var(--speed) ease, background var(--speed) ease, border-color var(--speed) ease;
+      position:relative;
+      overflow:hidden;
+      user-select:none;
+    }
+
+    .tile:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.20);
+    }
+    .tile:active{
       transform: translateY(0px) scale(.99);
     }
 
-    .noBtn{
-      border-color: rgba(251,113,133,.32);
-      box-shadow: 0 14px 30px rgba(244,63,94,.14);
+    .mark{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      font-size: 18px;
+      opacity:0;
+      transform: scale(.96);
+      transition: opacity var(--speed) ease, transform var(--speed) ease;
+      pointer-events:none;
     }
 
-    .final{
-      display:none;
-      animation: pop .65s ease forwards;
-      margin-top: 6px;
-    }
-    @keyframes pop{
-      from{ opacity:0; transform: scale(.92); }
-      to{ opacity:1; transform: scale(1); }
+    .tile.revealed .mark{
+      opacity:1;
+      transform: scale(1);
     }
 
-    .rose{
-      font-size: 66px;
-      margin: 10px 0 6px;
-      filter: drop-shadow(0 14px 28px rgba(0,0,0,.35));
+    .tile.wrong{
+      border-color: rgba(251,113,133,.35);
+      background: rgba(251,113,133,.10);
     }
 
-    .final h2{
-      margin: 0 0 6px;
-      font-size: 26px;
-      letter-spacing: .2px;
+    .tile.right{
+      border-color: rgba(34,197,94,.40);
+      background: rgba(34,197,94,.12);
     }
 
-    .final p{
-      margin: 0;
+    .tile.locked{
+      pointer-events:none;
+      opacity:.75;
+    }
+
+    .footer{
+      padding: 14px 18px 18px;
+      border-top: 1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    .hintBox{
+      font-size: 13px;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.5;
+      line-height:1.35;
+      min-height: 18px;
     }
 
-    .toast{
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(2,6,23,.88);
+    .btnRow{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .btn{
       border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
       padding: 10px 12px;
       border-radius: 12px;
-      color: var(--text);
+      cursor:pointer;
+      transition: background var(--speed) ease, transform var(--speed) ease;
+      font-weight: 850;
       font-size: 13px;
-      display:none;
-      z-index: 10;
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); }
+    .btn:active{ transform: scale(.98); }
+
+    .btnPrimary{
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-color: rgba(251,113,133,.35);
+      box-shadow: 0 14px 30px rgba(244,63,94,.18);
+    }
+    .btnPrimary:hover{
+      background: linear-gradient(135deg, #fb7185, #ff9fb1);
+    }
+
+    /* Reveal overlay */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.72);
       backdrop-filter: blur(10px);
-      pointer-events:none;
-      max-width: 92vw;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 22px;
+      z-index: 10;
+    }
+
+    .overlay.show{
+      display:flex;
+      animation: fadeIn 420ms ease forwards;
+    }
+
+    @keyframes fadeIn{
+      from{ opacity:0; }
+      to{ opacity:1; }
+    }
+
+    .revealCard{
+      width: min(560px, 96vw);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(15,23,42,.82);
+      box-shadow: 0 40px 120px rgba(0,0,0,.65);
+      padding: 26px 22px 20px;
       text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .ring{
+      font-size: 64px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,.35));
+      animation: pop 650ms cubic-bezier(.2,.9,.2,1) forwards;
+      transform: scale(.85);
+      opacity:0;
+    }
+
+    @keyframes pop{
+      to{ transform: scale(1); opacity:1; }
+    }
+
+    .revealTitle{
+      margin: 0 0 6px;
+      font-size: 28px;
+      letter-spacing:.2px;
+    }
+    .revealMsg{
+      margin: 0 auto 16px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height:1.6;
+      max-width: 54ch;
+    }
+
+    .tiny{
+      font-size: 12px;
+      color: var(--muted);
+      opacity:.9;
+    }
+
+    .pulse{
+      animation: pulse 320ms ease;
+    }
+    @keyframes pulse{
+      50%{ transform: scale(1.01); }
     }
   </style>
 </head>
 
 <body>
-  <!-- Put vine-boom.mp3 in the SAME folder as this index.html -->
-  <audio id="boom" src="vine-boom.mp3" preload="auto"></audio>
+  <!-- Wrong click sound: put wrong.mp3 in repo root -->
+  <audio id="wrongSound" src="wrong.mp3" preload="auto"></audio>
 
-  <div class="card">
-    <h1 id="question">Loading…</h1>
-    <p class="sub" id="sub">Tap once anywhere to enable sound.</p>
+  <div class="card" id="card">
+    <div class="top">
+      <div class="meta">
+        <h1 class="headline">Choose wisely.</h1>
+        <p class="sub" id="sub">Tap once anywhere to enable sound. Then begin.</p>
+      </div>
 
-    <div class="options" id="options"></div>
+      <div class="stats">
+        <div class="pill"><span>Attempts</span><strong id="attempts">0</strong></div>
+        <div class="pill"><span>Streak</span><strong id="streak">0</strong></div>
+      </div>
+    </div>
 
-    <div class="final" id="final">
-      <div class="rose">🌹</div>
-      <h2>Happy Rose Day</h2>
-      <p>You know who’s your <strong>DADDY</strong></p>
+    <div class="body">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="footer">
+      <div class="hintBox" id="hintBox">Hint: your first instinct is usually suspicious.</div>
+      <div class="btnRow">
+        <button class="btn" id="resetBtn">Reset</button>
+        <button class="btn btnPrimary" id="hardResetBtn" title="New secret location">New Game</button>
+      </div>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="revealCard">
+      <div class="ring">💍</div>
+      <h2 class="revealTitle">Happy Propose Day</h2>
+      <p class="revealMsg">
+        Consider this an official proposal to keep being awesome.
+      </p>
+      <div class="tiny">Call Me DADDY.</div>
+      <div style="margin-top:16px;">
+        <button class="btn btnPrimary" id="playAgain">Play Again</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-  // NOTE: I won’t bake in insults or real-person claims for you.
-  // Replace these 3 strings with any playful prompts you want (ideally not targeting real people).
-  const questions = [
-    {
-      q: "Samay is better than Zakir?",
-      yes: ["Yes obviously", "100% yes", "Without doubt", "Facts only"],
-    },
-    {
-      q: "Rahul wishes Messi was half as good as Ronaldo?",
-      yes: ["Yes 🐐", "No debate", "Absolutely", "Right AF"],
-    },
-    {
-      q: "Tom Holland is a better Spiderman than Tobey Maguire?",
-      yes: ["Confirmed", "Obviously", "No Doubt", "Universe agrees"],
-    }
-  ];
+  // -------------------------
+  // Settings
+  // -------------------------
+  const GRID_SIZE = 16;        // 12..20 also fine (layout is 4 columns currently)
+  const COLS = 4;              // keep 4 for GRID_SIZE=16; if you change GRID_SIZE, tell me and I’ll auto-fit
+  const MOVE_AFTER_WRONG = 3;  // move target after 3 wrong attempts
+  const FLASH_MS = 320;        // how long wrong mark flashes
 
-  let step = 0;
-
-  const questionEl = document.getElementById("question");
+  // -------------------------
+  // State
+  // -------------------------
+  const gridEl = document.getElementById("grid");
+  const hintBox = document.getElementById("hintBox");
+  const attemptsEl = document.getElementById("attempts");
+  const streakEl = document.getElementById("streak");
+  const overlay = document.getElementById("overlay");
+  const card = document.getElementById("card");
   const subEl = document.getElementById("sub");
-  const optionsEl = document.getElementById("options");
-  const finalEl = document.getElementById("final");
-  const toastEl = document.getElementById("toast");
-  const boom = document.getElementById("boom");
 
+  const wrongSound = document.getElementById("wrongSound");
   let soundReady = false;
-  let lastBoomAt = 0;
 
-  function toast(msg){
-    toastEl.textContent = msg;
-    toastEl.style.display = "block";
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => toastEl.style.display = "none", 900);
-  }
+  let targetIndex = randInt(GRID_SIZE);
+  let lastGuessIndex = null;
+  let attempts = 0;
+  let streak = 0;
+  let wrongCountSinceMove = 0;
+  let found = false;
+  let busy = false; // prevents spam-click during flash
 
-  // Unlock audio on first user gesture (required by browsers)
+  // -------------------------
+  // Audio unlock (browser requirement)
+  // -------------------------
   function unlockSound(){
     if (soundReady) return;
     soundReady = true;
-
-    // Attempt a silent-ish play/pause to "unlock" audio playback
-    boom.volume = 0.9;
-    boom.play().then(() => {
-      boom.pause();
-      boom.currentTime = 0;
-      subEl.textContent = "Sound enabled ✅";
+    subEl.textContent = "Sound enabled ✅";
+    wrongSound.volume = 0.9;
+    wrongSound.play().then(() => {
+      wrongSound.pause();
+      wrongSound.currentTime = 0;
     }).catch(() => {
-      subEl.textContent = "Sound blocked (still works silently).";
+      // If blocked, keep UI calm
+      subEl.textContent = "Sound may be blocked (game still works).";
     });
   }
   document.addEventListener("pointerdown", unlockSound, { once:true });
 
-  function playBoom(){
+  function playWrong(){
     if (!soundReady) return;
-    const now = Date.now();
-    if (now - lastBoomAt < 140) return; // throttle
-    lastBoomAt = now;
-
     try{
-      boom.currentTime = 0;
-      boom.play().catch(() => {});
-    } catch(e){}
+      wrongSound.currentTime = 0;
+      wrongSound.play().catch(()=>{});
+    }catch(e){}
   }
 
-  // Moves the "No" button away via translate (stays in layout so buttons always show)
-  function makeRunaway(btn){
-    let tx = 0, ty = 0;
+  // -------------------------
+  // Helpers
+  // -------------------------
+  function randInt(n){ return Math.floor(Math.random() * n); }
 
-    const move = () => {
-      // bigger jumps as the quiz progresses 😈
-      const jumpX = (Math.random() * 260 - 130) * (1 + step * 0.08);
-      const jumpY = (Math.random() * 180 - 90)  * (1 + step * 0.08);
-
-      tx = jumpX;
-      ty = jumpY;
-
-      btn.style.transform = `translate(${tx}px, ${ty}px)`;
-      playBoom();
-    };
-
-    // desktop
-    btn.addEventListener("pointerenter", move);
-
-    // mobile: try to dodge on touch before it can be tapped
-    btn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      move();
-      toast("Nice try 😄");
-    }, { passive:false });
-
-    // if they somehow click it
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      move();
-      toast("No is not an option 😌");
-    });
+  function distance(a, b){
+    // Manhattan distance in a COLS-based grid
+    const ax = a % COLS, ay = Math.floor(a / COLS);
+    const bx = b % COLS, by = Math.floor(b / COLS);
+    return Math.abs(ax - bx) + Math.abs(ay - by);
   }
 
-  function render(){
-    if(step >= questions.length){
-      questionEl.style.display = "none";
-      subEl.style.display = "none";
-      optionsEl.style.display = "none";
-      finalEl.style.display = "block";
+  function setHint(text){
+    hintBox.textContent = text;
+  }
+
+  function updateStats(){
+    attemptsEl.textContent = String(attempts);
+    streakEl.textContent = String(streak);
+  }
+
+  function moveTarget(){
+    let next = randInt(GRID_SIZE);
+    while(next === targetIndex) next = randInt(GRID_SIZE);
+    targetIndex = next;
+    wrongCountSinceMove = 0;
+
+    card.classList.remove("pulse");
+    void card.offsetWidth;
+    card.classList.add("pulse");
+  }
+
+  function lockGrid(){
+    [...gridEl.children].forEach(tile => tile.classList.add("locked"));
+  }
+
+  function revealWin(tile){
+    found = true;
+    tile.classList.add("right","revealed");
+    tile.querySelector(".mark").textContent = "💍";
+    lockGrid();
+
+    setTimeout(() => {
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+    }, 520);
+  }
+
+  function flashWrong(tile){
+    tile.classList.add("wrong","revealed");
+    tile.querySelector(".mark").textContent = "✖";
+    setTimeout(() => {
+      // Only clear if game not already won
+      if (!found){
+        tile.classList.remove("wrong","revealed");
+        tile.querySelector(".mark").textContent = "";
+      }
+    }, FLASH_MS);
+  }
+
+  // -------------------------
+  // Game logic
+  // -------------------------
+  function onPick(index, tile){
+    if(found || busy) return;
+
+    attempts++;
+    updateStats();
+
+    if(index === targetIndex){
+      streak++;
+      updateStats();
+      setHint("Interesting… you actually did it.");
+      revealWin(tile);
       return;
     }
 
-    const data = questions[step];
-    questionEl.textContent = data.q;
-    optionsEl.innerHTML = "";
+    // Wrong
+    playWrong();
+    streak = 0;
+    updateStats();
 
-    // 4 YES buttons
-    data.yes.forEach(txt => {
-      const b = document.createElement("button");
-      b.textContent = txt;
-      b.addEventListener("click", () => {
-        step++;
-        toast("Locked ✅");
-        render();
-      });
-      optionsEl.appendChild(b);
-    });
+    busy = true;
+    flashWrong(tile);
+    setTimeout(() => { busy = false; }, FLASH_MS - 20);
 
-    // 5th button: NO (runaway + vine boom)
-    const no = document.createElement("button");
-    no.textContent = "No";
-    no.className = "noBtn";
-    makeRunaway(no);
-    optionsEl.appendChild(no);
+    wrongCountSinceMove++;
+
+    // Hint: warmer/colder vs last guess
+    let msg = "Nope.";
+    if(lastGuessIndex !== null){
+      const prevD = distance(lastGuessIndex, targetIndex);
+      const curD  = distance(index, targetIndex);
+      if(curD < prevD) msg = "Warmer.";
+      else if(curD > prevD) msg = "Colder.";
+      else msg = "Neither warmer nor colder. Sideways move 😄";
+    } else {
+      const d = distance(index, targetIndex);
+      if(d <= 1) msg = "Very warm.";
+      else if(d <= 2) msg = "Warm-ish.";
+      else msg = "Cold start.";
+    }
+
+    // Flavor text + movement
+    if(wrongCountSinceMove === 2) msg += " Don’t get dramatic.";
+    if(wrongCountSinceMove >= MOVE_AFTER_WRONG){
+      msg += " Fine. I moved it.";
+      moveTarget();
+    }
+
+    setHint(msg);
+    lastGuessIndex = index;
   }
 
-  render();
+  // -------------------------
+  // Render
+  // -------------------------
+  function buildGrid(){
+    gridEl.innerHTML = "";
+    for(let i=0;i<GRID_SIZE;i++){
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.setAttribute("aria-label", "tile");
+
+      const mark = document.createElement("div");
+      mark.className = "mark";
+      mark.textContent = "";
+      tile.appendChild(mark);
+
+      tile.addEventListener("click", () => onPick(i, tile));
+      gridEl.appendChild(tile);
+    }
+  }
+
+  function reset(reseed=false){
+    found = false;
+    busy = false;
+    attempts = 0;
+    streak = 0;
+    wrongCountSinceMove = 0;
+    lastGuessIndex = null;
+
+    if(reseed) targetIndex = randInt(GRID_SIZE);
+
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+
+    buildGrid();
+    updateStats();
+    setHint("Hint: your first instinct is usually suspicious.");
+  }
+
+  // Buttons
+  document.getElementById("resetBtn").addEventListener("click", () => reset(false));
+  document.getElementById("hardResetBtn").addEventListener("click", () => reset(true));
+  document.getElementById("playAgain").addEventListener("click", () => reset(true));
+
+  // Init
+  reset(true);
 </script>
 </body>
 </html>
